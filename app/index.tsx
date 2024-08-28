@@ -8,15 +8,19 @@ import {
 import { BottomSheetModal, BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import { PanGestureHandler } from "react-native-gesture-handler";
 import MapView, { PROVIDER_DEFAULT } from "react-native-maps";
 import Animated, {
   FadeIn,
-  FadeInDown,
-  FadeOutUp,
+  SlideInLeft,
   SlideInRight,
+  SlideOutLeft,
+  SlideOutRight,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  useAnimatedGestureHandler,
+  runOnJS,
 } from "react-native-reanimated";
 
 const recentSearches: {
@@ -71,6 +75,7 @@ const Page = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<"recent" | "filter">("recent");
+  const translateX = useSharedValue(0);
 
   useEffect(() => {
     bottomSheetRef.current?.present();
@@ -112,6 +117,30 @@ const Page = () => {
         : [...prev, filterId]
     );
   };
+
+  const toggleTab = () => {
+    setActiveTab((prev) => (prev === "recent" ? "filter" : "recent"));
+    translateX.value = withTiming(0);
+  };
+
+  const gestureHandler = useAnimatedGestureHandler({
+    onActive: (event) => {
+      translateX.value = event.translationX;
+    },
+    onEnd: (event) => {
+      if (Math.abs(event.translationX) > 100) {
+        runOnJS(toggleTab)();
+      } else {
+        translateX.value = withTiming(0);
+      }
+    },
+  });
+
+  const animatedContentStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: translateX.value }],
+    };
+  });
 
   return (
     <View className="relative w-full h-full">
@@ -180,131 +209,127 @@ const Page = () => {
           <AddMosqueButton />
 
           {/* Tabs */}
-          <View className="flex-row mt-4 mb-2">
-            <TouchableOpacity
-              className={`flex-1 py-2 ${activeTab === "recent" ? "border-b-2 border-green-500" : ""}`}
-              onPress={() => setActiveTab("recent")}
+          <TouchableOpacity
+            className="flex-row mt-4 mb-2 items-center justify-center bg-gray-200 rounded-full p-1"
+            onPress={toggleTab}
+          >
+            <Animated.View
+              className={`flex-1 py-2 px-4 rounded-full ${
+                activeTab === "recent" ? "bg-white" : ""
+              }`}
+              layout={FadeIn}
             >
               <Text
-                className={`text-center font-semibold ${activeTab === "recent" ? "text-green-500" : "text-slate-500"}`}
+                className={`text-center font-semibold ${
+                  activeTab === "recent" ? "text-green-500" : "text-slate-500"
+                }`}
               >
                 Recent
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className={`flex-1 py-2 ${activeTab === "filter" ? "border-b-2 border-green-500" : ""}`}
-              onPress={() => setActiveTab("filter")}
+            </Animated.View>
+            <Animated.View
+              className={`flex-1 py-2 px-4 rounded-full ${
+                activeTab === "filter" ? "bg-white" : ""
+              }`}
+              layout={FadeIn}
             >
               <Text
-                className={`text-center font-semibold ${activeTab === "filter" ? "text-green-500" : "text-slate-500"}`}
+                className={`text-center font-semibold ${
+                  activeTab === "filter" ? "text-green-500" : "text-slate-500"
+                }`}
               >
                 Filter
               </Text>
-            </TouchableOpacity>
-          </View>
+            </Animated.View>
+          </TouchableOpacity>
 
-          {/* Recents */}
-          {activeTab === "recent" && (
-            <Animated.View
-              className="mt-1"
-              entering={FadeInDown.duration(500)}
-              exiting={FadeOutUp.duration(500)}
-            >
-              <Animated.View
-                className="mt-2"
-                entering={FadeIn.delay(400).duration(300)}
-              >
-                {recentSearches.map((search, index) => (
-                  <Animated.View
-                    key={index}
-                    entering={SlideInRight.delay(index * 100).duration(300)}
-                  >
-                    <TouchableOpacity className="bg-white rounded-lg shadow-md flex-row items-center gap-x-2">
-                      <View className="w-8 h-8 bg-gray-100 rounded-full items-center justify-center mr-2">
-                        <Feather name="clock" size={20} color="black" />
-                      </View>
-                      <View className="gap-y-1 w-full">
-                        <Text className="text-slate-500 font-semibold text-md">
-                          {search.name}
-                        </Text>
-                        <Text className="text-slate-400">
-                          {search.location}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                    <View className="ml-12 mt-1">
-                      {search.hotNote && (
-                        <Animated.Text
-                          className="text-red-500"
-                          entering={FadeIn.delay((index + 1) * 100).duration(
-                            300
+          <PanGestureHandler onGestureEvent={gestureHandler}>
+            <Animated.View style={animatedContentStyle}>
+              {/* Recents */}
+              {activeTab === "recent" && (
+                <Animated.View
+                  className="mt-1"
+                  entering={SlideInLeft.duration(300)}
+                  exiting={SlideOutLeft.duration(300)}
+                >
+                  <Animated.View className="mt-2">
+                    {recentSearches.map((search, index) => (
+                      <Animated.View key={index}>
+                        <TouchableOpacity className="bg-white rounded-lg shadow-md flex-row items-center gap-x-2">
+                          <View className="w-8 h-8 bg-gray-100 rounded-full items-center justify-center mr-2">
+                            <Feather name="clock" size={20} color="black" />
+                          </View>
+                          <View className="gap-y-1 w-full">
+                            <Text className="text-slate-500 font-semibold text-md">
+                              {search.name}
+                            </Text>
+                            <Text className="text-slate-400">
+                              {search.location}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                        <View className="ml-12 mt-1">
+                          {search.hotNote && (
+                            <Animated.Text className="text-red-500">
+                              {search.hotNote.text}
+                            </Animated.Text>
                           )}
+                          {index < recentSearches.length - 1 && (
+                            <Animated.View className="border-b border-gray-300 my-1" />
+                          )}
+                        </View>
+                      </Animated.View>
+                    ))}
+                  </Animated.View>
+                </Animated.View>
+              )}
+              {/* Filters */}
+              {activeTab === "filter" && (
+                <Animated.View
+                  className="mt-1"
+                  entering={SlideInRight.duration(300)}
+                  exiting={SlideOutRight.duration(300)}
+                >
+                  <Animated.View className="mt-2">
+                    <View className="flex gap-2">
+                      {filterOptions.map((option) => (
+                        <TouchableOpacity
+                          key={option.id}
+                          className={`border-2 ${
+                            selectedFilters.includes(option.id)
+                              ? "border-green-300"
+                              : "border-slate-200"
+                          } px-4 rounded-lg flex-row items-center justify-between py-3 flex`}
+                          onPress={() => toggleFilter(option.id)}
                         >
-                          {search.hotNote.text}
-                        </Animated.Text>
-                      )}
-                      {index < recentSearches.length - 1 && (
-                        <Animated.View
-                          className="border-b border-gray-300 my-1"
-                          entering={FadeIn.delay((index + 1) * 100).duration(
-                            300
-                          )}
-                        />
-                      )}
+                          <Text
+                            className={`font-bold text-sm ${
+                              selectedFilters.includes(option.id)
+                                ? "text-green-500"
+                                : "text-slate-500"
+                            }`}
+                          >
+                            {option.label}
+                          </Text>
+                          <FontAwesome5
+                            name={option.icon}
+                            size={20}
+                            color={
+                              selectedFilters.includes(option.id)
+                                ? "#22c55e"
+                                : "#64748b"
+                            }
+                            style={{ marginRight: 8 }}
+                          />
+                        </TouchableOpacity>
+                      ))}
                     </View>
                   </Animated.View>
-                ))}
-              </Animated.View>
+                  <FilterButton />
+                </Animated.View>
+              )}
             </Animated.View>
-          )}
-          {/* Filters */}
-          {activeTab === "filter" && (
-            <Animated.View
-              className="mt-1"
-              entering={FadeInDown.duration(500)}
-              exiting={FadeOutUp.duration(500)}
-            >
-              <Animated.View
-                className="mt-2"
-                entering={FadeIn.delay(400).duration(300)}
-              >
-                <View className="flex gap-2">
-                  {filterOptions.map((option) => (
-                    <TouchableOpacity
-                      key={option.id}
-                      className={`border-2 ${
-                        selectedFilters.includes(option.id)
-                          ? "border-green-300"
-                          : "border-slate-200"
-                      } px-4 rounded-lg flex-row items-center justify-between py-3 flex`}
-                      onPress={() => toggleFilter(option.id)}
-                    >
-                      <Text
-                        className={`font-bold text-sm ${
-                          selectedFilters.includes(option.id)
-                            ? "text-green-500"
-                            : "text-slate-500"
-                        }`}
-                      >
-                        {option.label}
-                      </Text>
-                      <FontAwesome5
-                        name={option.icon}
-                        size={20}
-                        color={
-                          selectedFilters.includes(option.id)
-                            ? "#22c55e"
-                            : "#64748b"
-                        }
-                        style={{ marginRight: 8 }}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </Animated.View>
-              <FilterButton />
-            </Animated.View>
-          )}
+          </PanGestureHandler>
         </Animated.View>
       </BottomSheetModal>
     </View>
