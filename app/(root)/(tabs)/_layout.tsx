@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { Image, ImageSourcePropType, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { icons } from "@/constants";
 
@@ -35,7 +36,7 @@ export default function Layout() {
         tabBarInactiveTintColor: "white",
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "#333333",
+          backgroundColor: "rgba(255, 255, 255, 0.6)", // Semi-transparent background
           borderRadius: 50,
           paddingBottom: 0, // ios only
           overflow: "hidden",

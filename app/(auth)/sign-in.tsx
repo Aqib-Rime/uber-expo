@@ -1,43 +1,63 @@
 import { useSignIn } from "@clerk/clerk-expo";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, router } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { Alert, Image, ScrollView, Text, View } from "react-native";
+import { z } from "zod";
 
+import { FormErrorMessage } from "@/app/(auth)/sign-up";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
 import OAuth from "@/components/OAuth";
 import { icons, images } from "@/constants";
 
+const signInSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type SignInFormData = z.infer<typeof signInSchema>;
+
 const SignIn = () => {
   const { signIn, setActive, isLoaded } = useSignIn();
-
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInFormData>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const onSignInPress = useCallback(async () => {
-    if (!isLoaded) return;
+  const onSignInPress = useCallback(
+    async (data: SignInFormData) => {
+      if (!isLoaded) return;
 
-    try {
-      const signInAttempt = await signIn.create({
-        identifier: form.email,
-        password: form.password,
-      });
+      try {
+        const signInAttempt = await signIn.create({
+          identifier: data.email,
+          password: data.password,
+        });
 
-      if (signInAttempt.status === "complete") {
-        await setActive({ session: signInAttempt.createdSessionId });
-        router.replace("/(root)/(tabs)/home");
-      } else {
-        // See https://clerk.com/docs/custom-flows/error-handling for more info on error handling
-        console.log(JSON.stringify(signInAttempt, null, 2));
-        Alert.alert("Error", "Log in failed. Please try again.");
+        if (signInAttempt.status === "complete") {
+          await setActive({ session: signInAttempt.createdSessionId });
+          // router.replace("/(root)/(tabs)/home");
+          console.log("signin debug place");
+        } else {
+          console.log(JSON.stringify(signInAttempt, null, 2));
+          Alert.alert("Error", "Log in failed. Please try again.");
+        }
+      } catch (err: any) {
+        console.log(JSON.stringify(err, null, 2));
+        Alert.alert("Error", err.errors[0].longMessage);
       }
-    } catch (err: any) {
-      console.log(JSON.stringify(err, null, 2));
-      Alert.alert("Error", err.errors[0].longMessage);
-    }
-  }, [isLoaded, form]);
+    },
+    [isLoaded, signIn, setActive],
+  );
 
   return (
     <ScrollView className="flex-1 bg-white">
@@ -45,33 +65,49 @@ const SignIn = () => {
         <View className="relative w-full h-[250px]">
           <Image source={images.signUpCar} className="z-0 w-full h-[250px]" />
           <Text className="text-2xl text-black font-JakartaSemiBold absolute bottom-5 left-5">
-            Welcome 👋
+            Assalamu alaikum 👋
           </Text>
         </View>
 
         <View className="p-5">
-          <InputField
-            label="Email"
-            placeholder="Enter email"
-            icon={icons.email}
-            textContentType="emailAddress"
-            value={form.email}
-            onChangeText={(value) => setForm({ ...form, email: value })}
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, value } }) => (
+              <InputField
+                label="Email"
+                placeholder="Enter email"
+                icon={icons.email}
+                textContentType="emailAddress"
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
           />
+          {errors.email && <FormErrorMessage message={errors.email.message} />}
 
-          <InputField
-            label="Password"
-            placeholder="Enter password"
-            icon={icons.lock}
-            secureTextEntry={true}
-            textContentType="password"
-            value={form.password}
-            onChangeText={(value) => setForm({ ...form, password: value })}
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, value } }) => (
+              <InputField
+                label="Password"
+                placeholder="Enter password"
+                icon={icons.lock}
+                secureTextEntry={true}
+                textContentType="password"
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
           />
+          {errors.password && (
+            <FormErrorMessage message={errors.password.message} />
+          )}
 
           <CustomButton
             title="Sign In"
-            onPress={onSignInPress}
+            onPress={handleSubmit(onSignInPress)}
             className="mt-6"
           />
 

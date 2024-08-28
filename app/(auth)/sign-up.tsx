@@ -1,36 +1,60 @@
-import { useSignUp } from "@clerk/clerk-expo";
+import { useAuth, useSignUp, useUser } from "@clerk/clerk-expo";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, router } from "expo-router";
 import { useState } from "react";
-import { Alert, Image, ScrollView, Text, View } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { Image, ScrollView, Text, View } from "react-native";
 import { ReactNativeModal } from "react-native-modal";
+import { z } from "zod";
 
+import { LoginBackend } from "@/app/(test)/_compoents/loginBackend";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
 import OAuth from "@/components/OAuth";
 import { icons, images } from "@/constants";
+import { getAndSetAccessToken } from "@/lib/auth";
 import { fetchAPI } from "@/lib/fetch";
 
+const signUpSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+type SignUpFormData = z.infer<typeof signUpSchema>;
+
 const SignUp = () => {
+  const { user } = useUser();
+  const { getToken } = useAuth();
   const { isLoaded, signUp, setActive } = useSignUp();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [clerkError, setClerkError] = useState("");
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
   const [verification, setVerification] = useState({
     state: "default",
     error: "",
     code: "",
   });
 
-  const onSignUpPress = async () => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSignUpPress = async (data: SignUpFormData) => {
     if (!isLoaded) return;
     try {
       await signUp.create({
-        emailAddress: form.email,
-        password: form.password,
+        emailAddress: data.email,
+        password: data.password,
       });
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setVerification({
@@ -38,12 +62,11 @@ const SignUp = () => {
         state: "pending",
       });
     } catch (err: any) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
       console.log(JSON.stringify(err, null, 2));
-      Alert.alert("Error", err.errors[0].longMessage);
+      setClerkError(err.errors[0].longMessage);
     }
   };
+
   const onPressVerify = async () => {
     if (!isLoaded) return;
     try {
@@ -54,8 +77,8 @@ const SignUp = () => {
         await fetchAPI("/(api)/user", {
           method: "POST",
           body: JSON.stringify({
-            name: form.name,
-            email: form.email,
+            name: completeSignUp.firstName,
+            email: completeSignUp.emailAddress,
             clerkId: completeSignUp.createdUserId,
           }),
         });
@@ -72,8 +95,6 @@ const SignUp = () => {
         });
       }
     } catch (err: any) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
       setVerification({
         ...verification,
         error: err.errors[0].longMessage,
@@ -81,6 +102,7 @@ const SignUp = () => {
       });
     }
   };
+
   return (
     <ScrollView className="flex-1 bg-white">
       <View className="flex-1 bg-white">
@@ -90,34 +112,61 @@ const SignUp = () => {
             Create Your Account
           </Text>
         </View>
+        <LoginBackend />
         <View className="p-5">
-          <InputField
-            label="Name"
-            placeholder="Enter name"
-            icon={icons.person}
-            value={form.name}
-            onChangeText={(value) => setForm({ ...form, name: value })}
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, value } }) => (
+              <InputField
+                label="Name"
+                placeholder="Enter name"
+                icon={icons.person}
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
           />
-          <InputField
-            label="Email"
-            placeholder="Enter email"
-            icon={icons.email}
-            textContentType="emailAddress"
-            value={form.email}
-            onChangeText={(value) => setForm({ ...form, email: value })}
+          {errors.name && <FormErrorMessage message={errors.name.message} />}
+
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, value } }) => (
+              <InputField
+                label="Email"
+                placeholder="Enter email"
+                icon={icons.email}
+                textContentType="emailAddress"
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
           />
-          <InputField
-            label="Password"
-            placeholder="Enter password"
-            icon={icons.lock}
-            secureTextEntry={true}
-            textContentType="password"
-            value={form.password}
-            onChangeText={(value) => setForm({ ...form, password: value })}
+          {errors.email && <FormErrorMessage message={errors.email.message} />}
+
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, value } }) => (
+              <InputField
+                label="Password"
+                placeholder="Enter password"
+                icon={icons.lock}
+                secureTextEntry={true}
+                textContentType="password"
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
           />
+          {errors.password && (
+            <FormErrorMessage message={errors.password.message} />
+          )}
+
           <CustomButton
             title="Sign Up"
-            onPress={onSignUpPress}
+            onPress={handleSubmit(onSignUpPress)}
             className="mt-6"
           />
           <OAuth />
@@ -131,9 +180,6 @@ const SignUp = () => {
         </View>
         <ReactNativeModal
           isVisible={verification.state === "pending"}
-          // onBackdropPress={() =>
-          //   setVerification({ ...verification, state: "default" })
-          // }
           onModalHide={() => {
             if (verification.state === "success") {
               setShowSuccessModal(true);
@@ -145,7 +191,7 @@ const SignUp = () => {
               Verification
             </Text>
             <Text className="font-Jakarta mb-5">
-              We've sent a verification code to {form.email}.
+              We've sent a verification code to your email.
             </Text>
             <InputField
               label={"Code"}
@@ -183,8 +229,31 @@ const SignUp = () => {
             </Text>
             <CustomButton
               title="Browse Home"
-              onPress={() => router.push(`/(root)/(tabs)/home`)}
+              onPress={() => {
+                if (user) {
+                  getAndSetAccessToken(user, getToken, "email").then(() => {
+                    console.log("access token set");
+                  });
+                }
+                router.push(`/(root)/(tabs)/home`);
+              }}
               className="mt-5"
+            />
+          </View>
+        </ReactNativeModal>
+        <ReactNativeModal isVisible={clerkError.length > 0}>
+          <View className="px-7 py-9 rounded-2xl min-h-[300px] border-2 border-red-500 bg-red-100">
+            <Text className="font-JakartaExtraBold text-2xl mb-2 text-red-500">
+              Authentication Error
+            </Text>
+            <Text className="font-Jakarta text-red-500 text-sm mb-5">
+              {clerkError}
+            </Text>
+            <View className={"flex flex-col flex-1 items-center"} />
+            <CustomButton
+              title="Try Again"
+              onPress={() => setClerkError("")}
+              className="bg-red-500 border-2 border-red-500"
             />
           </View>
         </ReactNativeModal>
@@ -192,4 +261,15 @@ const SignUp = () => {
     </ScrollView>
   );
 };
+
 export default SignUp;
+
+export function FormErrorMessage({ message }: { message?: string }) {
+  return (
+    <View
+      className={"p-2 bg-red-100 rounded-full px-4 flex flex-row items-center"}
+    >
+      <Text className="text-red-500 text-sm mb-0.5">{message}</Text>
+    </View>
+  );
+}

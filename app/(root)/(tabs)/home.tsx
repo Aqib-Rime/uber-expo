@@ -1,67 +1,65 @@
-import { useUser } from "@clerk/clerk-expo";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/clerk-expo";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import BottomSheet from "@gorhom/bottom-sheet";
 import * as Location from "expo-location";
 import { router } from "expo-router";
-import { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  Text,
   View,
+  Text,
   TouchableOpacity,
-  Image,
-  FlatList,
+  TextInput,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import GoogleTextInput from "@/components/GoogleTextInput";
+import { FilterComponent } from "@/components/FilterComponent";
 import Map from "@/components/Map";
-import RideCard from "@/components/RideCard";
-import { icons, images } from "@/constants";
-import { useFetch } from "@/lib/fetch";
+import { useFacilities } from "@/hooks/facilities";
+import { getAndSetAccessToken } from "@/lib/auth";
 import { useLocationStore } from "@/store";
-import { Ride } from "@/types/type";
 
 const Home = () => {
   const { user } = useUser();
-  const { signOut } = useAuth();
-
+  const { getToken, signOut } = useAuth();
+  const bottomSheetRef = useRef<BottomSheet>(null);
   const { setUserLocation, setDestinationLocation } = useLocationStore();
+  const { facilities, isPending, isError } = useFacilities();
+
+  const [hasPermission, setHasPermission] = useState<boolean>(false);
+  const [sheetComponent, setSheetComponent] = useState(0);
+
+  useEffect(() => {
+    const requestLocationPermission = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === "granted") {
+        const location = await Location.getCurrentPositionAsync({});
+        const address = await Location.reverseGeocodeAsync(location.coords);
+        setUserLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          address: `${address[0].name}, ${address[0].region}`,
+        });
+      } else {
+        setHasPermission(false);
+      }
+    };
+    requestLocationPermission();
+  }, [setUserLocation]);
+
+  useEffect(() => {
+    if (user) {
+      getAndSetAccessToken(user, getToken, "google").then(() => {
+        console.log("Access token set for Google user");
+      });
+    }
+  }, [user, getToken]);
 
   const handleSignOut = () => {
     signOut();
     router.replace("/(auth)/sign-in");
   };
-
-  const [hasPermission, setHasPermission] = useState<boolean>(false);
-
-  const {
-    data: recentRides,
-    loading,
-    error,
-  } = useFetch<Ride[]>(`/(api)/ride/${user?.id}`);
-
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setHasPermission(false);
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-
-      const address = await Location.reverseGeocodeAsync({
-        latitude: location.coords?.latitude!,
-        longitude: location.coords?.longitude!,
-      });
-
-      setUserLocation({
-        latitude: location.coords?.latitude,
-        longitude: location.coords?.longitude,
-        address: `${address[0].name}, ${address[0].region}`,
-      });
-    })();
-  }, []);
 
   const handleDestinationPress = (location: {
     latitude: number;
@@ -69,75 +67,68 @@ const Home = () => {
     address: string;
   }) => {
     setDestinationLocation(location);
-
     router.push("/(root)/find-ride");
   };
 
+  const renderSheetComponent = () => {
+    switch (sheetComponent) {
+      case 0:
+        return <FilterComponent />;
+      case 1:
+        return <Text>Component 1</Text>;
+      case 2:
+        return <Text>Component 2</Text>;
+      default:
+        return <Text>Component 1</Text>;
+    }
+  };
+
   return (
-    <SafeAreaView className="bg-general-500">
-      <FlatList
-        data={recentRides?.slice(0, 5)}
-        renderItem={({ item }) => <RideCard ride={item} />}
-        keyExtractor={(item, index) => index.toString()}
-        className="px-5"
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{
-          paddingBottom: 100,
-        }}
-        ListEmptyComponent={() => (
-          <View className="flex flex-col items-center justify-center">
-            {!loading ? (
-              <>
-                <Image
-                  source={images.noResult}
-                  className="w-40 h-40"
-                  alt="No recent rides found"
-                  resizeMode="contain"
-                />
-                <Text className="text-sm">No recent rides found</Text>
-              </>
-            ) : (
-              <ActivityIndicator size="small" color="#000" />
-            )}
-          </View>
-        )}
-        ListHeaderComponent={
-          <>
-            <View className="flex flex-row items-center justify-between my-5">
-              <Text className="text-2xl font-JakartaExtraBold">
-                Welcome {user?.firstName}👋
-              </Text>
-              <TouchableOpacity
-                onPress={handleSignOut}
-                className="justify-center items-center w-10 h-10 rounded-full bg-white"
-              >
-                <Image source={icons.out} className="w-4 h-4" />
-              </TouchableOpacity>
-            </View>
-
-            <GoogleTextInput
-              icon={icons.search}
-              containerStyle="bg-white shadow-md shadow-neutral-300"
-              handlePress={handleDestinationPress}
-            />
-
-            <>
-              <Text className="text-xl font-JakartaBold mt-5 mb-3">
-                Your current location
-              </Text>
-              <View className="flex flex-row items-center bg-transparent h-[300px]">
-                <Map />
-              </View>
-            </>
-
-            <Text className="text-xl font-JakartaBold mt-5 mb-3">
-              Recent Rides
-            </Text>
-          </>
-        }
-      />
-    </SafeAreaView>
+    <View className="flex-1 relative">
+      <Map />
+      <SafeAreaView className="absolute p-6 top-0 flex-1 flex flex-row justify-between w-full items-center">
+        <TouchableOpacity
+          onPress={() => {
+            setSheetComponent(0);
+            bottomSheetRef.current?.snapToIndex(1);
+          }}
+          className="bg-white p-3 rounded-full flex flex-row items-center justify-center"
+        >
+          <AntDesign name="filter" size={24} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity className="bg-white p-3 rounded-full flex flex-row items-center justify-center">
+          <Ionicons name="search" size={24} color="black" />
+        </TouchableOpacity>
+      </SafeAreaView>
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={["1%", "40%", "65%"]}
+        index={0}
+      >
+        {renderSheetComponent()}
+      </BottomSheet>
+    </View>
   );
 };
 
 export default Home;
+
+const GoogleSearch = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
+  const handleSearch = async () => {
+    // Implement search functionality here
+  };
+
+  return (
+    <View className="p-4 flex flex-row items-center">
+      <TextInput
+        className="border-2 border-white bg-gray-200 rounded-2xl px-4 py-4 mb-4 w-full"
+        placeholder="Search..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+    </View>
+  );
+};
