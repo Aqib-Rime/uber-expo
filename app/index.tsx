@@ -70,8 +70,7 @@ const Page = () => {
   const marginTopAnim = useSharedValue(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const [showFilter, setShowFilter] = useState(false);
-  const [showRecents, setShowRecents] = useState(true);
+  const [activeTab, setActiveTab] = useState<"recent" | "filter">("recent");
 
   useEffect(() => {
     bottomSheetRef.current?.present();
@@ -130,7 +129,7 @@ const Page = () => {
       />
       <TouchableOpacity
         onPress={() => {
-          setShowFilter(!showFilter);
+          setActiveTab("filter");
           bottomSheetRef.current?.snapToIndex(1);
         }}
         className="absolute top-12 right-4 bg-white p-2 rounded-full shadow-md"
@@ -183,27 +182,21 @@ const Page = () => {
           {/* Tabs */}
           <View className="flex-row mt-4 mb-2">
             <TouchableOpacity
-              className={`flex-1 py-2 ${showRecents ? "border-b-2 border-green-500" : ""}`}
-              onPress={() => {
-                setShowRecents(true);
-                setShowFilter(false);
-              }}
+              className={`flex-1 py-2 ${activeTab === "recent" ? "border-b-2 border-green-500" : ""}`}
+              onPress={() => setActiveTab("recent")}
             >
               <Text
-                className={`text-center font-semibold ${showRecents ? "text-green-500" : "text-slate-500"}`}
+                className={`text-center font-semibold ${activeTab === "recent" ? "text-green-500" : "text-slate-500"}`}
               >
                 Recent
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className={`flex-1 py-2 ${showFilter ? "border-b-2 border-green-500" : ""}`}
-              onPress={() => {
-                setShowRecents(false);
-                setShowFilter(true);
-              }}
+              className={`flex-1 py-2 ${activeTab === "filter" ? "border-b-2 border-green-500" : ""}`}
+              onPress={() => setActiveTab("filter")}
             >
               <Text
-                className={`text-center font-semibold ${showFilter ? "text-green-500" : "text-slate-500"}`}
+                className={`text-center font-semibold ${activeTab === "filter" ? "text-green-500" : "text-slate-500"}`}
               >
                 Filter
               </Text>
@@ -211,7 +204,7 @@ const Page = () => {
           </View>
 
           {/* Recents */}
-          {showRecents && (
+          {activeTab === "recent" && (
             <Animated.View
               className="mt-1"
               entering={FadeInDown.duration(500)}
@@ -265,7 +258,7 @@ const Page = () => {
             </Animated.View>
           )}
           {/* Filters */}
-          {showFilter && (
+          {activeTab === "filter" && (
             <Animated.View
               className="mt-1"
               entering={FadeInDown.duration(500)}
