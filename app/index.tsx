@@ -5,28 +5,19 @@ import {
   FontAwesome6,
   Ionicons,
 } from "@expo/vector-icons";
-import BottomSheet, {
-  BottomSheetModal,
-  BottomSheetTextInput,
-  useBottomSheet,
-} from "@gorhom/bottom-sheet";
-import { useEffect, useRef, useState, useCallback } from "react";
-import { set } from "react-hook-form";
-import { View, Text, TextInput, TouchableOpacity, Button } from "react-native";
-import { Image } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModal, BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 import MapView, { PROVIDER_DEFAULT } from "react-native-maps";
 import Animated, {
   FadeIn,
-  SlideInRight,
   FadeInDown,
   FadeOutUp,
+  SlideInRight,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-  withDelay,
 } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const recentSearches: {
   name: string;
@@ -78,9 +69,9 @@ const Page = () => {
   const [isFocused, setIsFocused] = useState(false);
   const marginTopAnim = useSharedValue(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const showRecents = isFullScreen && !showFilter;
+  const [showFilter, setShowFilter] = useState(false);
+  const [showRecents, setShowRecents] = useState(true);
 
   useEffect(() => {
     bottomSheetRef.current?.present();
@@ -189,6 +180,36 @@ const Page = () => {
           </View>
           <AddMosqueButton />
 
+          {/* Tabs */}
+          <View className="flex-row mt-4 mb-2">
+            <TouchableOpacity
+              className={`flex-1 py-2 ${showRecents ? "border-b-2 border-green-500" : ""}`}
+              onPress={() => {
+                setShowRecents(true);
+                setShowFilter(false);
+              }}
+            >
+              <Text
+                className={`text-center font-semibold ${showRecents ? "text-green-500" : "text-slate-500"}`}
+              >
+                Recent
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 py-2 ${showFilter ? "border-b-2 border-green-500" : ""}`}
+              onPress={() => {
+                setShowRecents(false);
+                setShowFilter(true);
+              }}
+            >
+              <Text
+                className={`text-center font-semibold ${showFilter ? "text-green-500" : "text-slate-500"}`}
+              >
+                Filter
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Recents */}
           {showRecents && (
             <Animated.View
@@ -196,12 +217,6 @@ const Page = () => {
               entering={FadeInDown.duration(500)}
               exiting={FadeOutUp.duration(500)}
             >
-              <Animated.Text
-                className="font-semibold text-slate-500 text-lg my-2"
-                entering={FadeIn.delay(200).duration(300)}
-              >
-                Recent
-              </Animated.Text>
               <Animated.View
                 className="mt-2"
                 entering={FadeIn.delay(400).duration(300)}
@@ -249,18 +264,13 @@ const Page = () => {
               </Animated.View>
             </Animated.View>
           )}
+          {/* Filters */}
           {showFilter && (
             <Animated.View
               className="mt-1"
               entering={FadeInDown.duration(500)}
               exiting={FadeOutUp.duration(500)}
             >
-              <Animated.Text
-                className="font-semibold text-slate-500 text-lg my-2"
-                entering={FadeIn.delay(200).duration(300)}
-              >
-                Filter
-              </Animated.Text>
               <Animated.View
                 className="mt-2"
                 entering={FadeIn.delay(400).duration(300)}
