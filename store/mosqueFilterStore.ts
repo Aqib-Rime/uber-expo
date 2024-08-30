@@ -7,10 +7,13 @@ interface MosqueFilterInfo {
   setRadius: (radius: number) => void;
 }
 
-const useMosqueFilterStore = create<MosqueFilterInfo>((set) => ({
+export const useMosqueFilterStore = create<MosqueFilterInfo>((set) => ({
   facilities: [],
-  radius: 500,
-  setFacilities: (facilities) => set({ facilities }),
+  radius: 5000,
+  setFacilities: (facilities) => {
+    console.log(facilities);
+    return set({ facilities });
+  },
   setRadius: (radius) => set({ radius }),
 }));
 

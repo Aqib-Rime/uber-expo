@@ -62,6 +62,16 @@ export default function Layout() {
         }}
       />
       <Tabs.Screen
+        name="mosques"
+        options={{
+          title: "Mosques",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon source={icons.map} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="rides"
         options={{
           title: "Rides",
