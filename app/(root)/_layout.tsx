@@ -20,12 +20,7 @@ const Layout = () => {
       <Stack.Screen
         name="add-mosque"
         options={{
-          presentation: "modal",
-          title: "Add Mosque",
-          headerStyle: {
-            backgroundColor: "#22c55e",
-          },
-          headerTintColor: "#fff",
+          headerShown: false,
         }}
       />
       <Stack.Screen

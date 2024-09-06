@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const schema = z.object({
   name: z.string().min(1, "Mosque name is required"),
@@ -118,7 +119,7 @@ export default function AddMosquePage() {
       case 0:
         return (
           <View>
-            <Text className="text-lg font-semibold mb-2 text-gray-800">
+            <Text className="text-lg font-semibold mb-2 text-slate-600">
               Mosque Name
             </Text>
             <Controller
@@ -165,7 +166,7 @@ export default function AddMosquePage() {
                 {params.address ? "Change Location" : "Pick Location on Map"}
               </Text>
             </TouchableOpacity>
-            <Text className="text-lg font-semibold mb-2 text-gray-800">
+            <Text className="text-lg font-semibold mb-2 text-slate-600">
               Address
             </Text>
             <Controller
@@ -187,7 +188,7 @@ export default function AddMosquePage() {
                 {errors.address.message}
               </Text>
             )}
-            <Text className="text-lg font-semibold mb-2 text-gray-800">
+            <Text className="text-lg font-semibold mb-2 text-slate-600">
               Latitude
             </Text>
             <Controller
@@ -204,7 +205,7 @@ export default function AddMosquePage() {
               )}
               name="latitude"
             />
-            <Text className="text-lg font-semibold mb-2 text-gray-800">
+            <Text className="text-lg font-semibold mb-2 text-slate-600">
               Longitude
             </Text>
             <Controller
@@ -226,7 +227,7 @@ export default function AddMosquePage() {
       case 2:
         return (
           <View>
-            <Text className="text-lg font-semibold mb-2 text-gray-800">
+            <Text className="text-lg font-semibold mb-2 text-slate-600">
               Cover Image
             </Text>
             <TouchableOpacity
@@ -250,7 +251,7 @@ export default function AddMosquePage() {
               />
             )}
 
-            <Text className="text-lg font-semibold mb-2 text-gray-800">
+            <Text className="text-lg font-semibold mb-2 text-slate-600">
               Other Images
             </Text>
             <TouchableOpacity
@@ -277,7 +278,7 @@ export default function AddMosquePage() {
               ))}
             </ScrollView>
 
-            <Text className="text-lg font-semibold mb-2 text-gray-800">
+            <Text className="text-lg font-semibold mb-2 text-slate-600">
               Comment
             </Text>
             <Controller
@@ -302,8 +303,19 @@ export default function AddMosquePage() {
   };
 
   return (
-    <View className="flex-1 bg-white">
-      <View className="py-4 px-4 bg-white shadow-sm">
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="flex-row mt-3 items-center justify-start gap-x-4 px-4">
+        <TouchableOpacity
+          className="bg-white border border-gray-200 p-2 rounded-full shadow-md"
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#22c55e" />
+        </TouchableOpacity>
+        <Text className="ml-2 font-semibold text-slate-600 text-3xl">
+          Add Mosque
+        </Text>
+      </View>
+      <View className="py-4 px-4 mt-4">
         <StepIndicator
           customStyles={customStyles}
           currentPosition={currentStep}
@@ -315,30 +327,39 @@ export default function AddMosquePage() {
       <ScrollView className="flex-1 px-4 py-6">
         {renderStepContent()}
       </ScrollView>
-      <View className="flex-row justify-between p-4 bg-white shadow-sm">
+      <View className="flex-row justify-between p-4">
+        {currentStep === 0 ? (
+          <TouchableOpacity
+            className="px-6 py-3 rounded-lg flex-1 mr-2 items-center justify-center border-2 border-red-300"
+            onPress={() => router.back()}
+          >
+            <Text className="font-semibold text-md text-red-500">
+              Cancel
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            className="px-6 py-3 rounded-lg flex-1 mr-2 items-center justify-center border-2 border-green-300"
+            onPress={() => setCurrentStep(currentStep - 1)}
+          >
+            <Text className="font-semibold text-md text-green-500">
+              Back
+            </Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
-          className="px-6 py-3 rounded-lg flex-1 mr-2 items-center justify-center bg-gray-100"
-          onPress={() =>
-            currentStep > 0 ? setCurrentStep(currentStep - 1) : router.back()
-          }
-        >
-          <Text className="font-semibold text-md text-gray-700">
-            {currentStep === 0 ? "Cancel" : "Back"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="px-6 py-3 rounded-lg flex-1 ml-2 items-center justify-center bg-green-500"
+          className="px-6 py-3 rounded-lg flex-1 ml-2 items-center justify-center border-2 border-green-300 bg-green-100"
           onPress={
             currentStep === steps.length - 1
               ? handleSubmit(onSubmit)
               : () => setCurrentStep(currentStep + 1)
           }
         >
-          <Text className="font-semibold text-md text-white">
+          <Text className="font-semibold text-md text-green-500">
             {currentStep === steps.length - 1 ? "Submit" : "Next"}
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
