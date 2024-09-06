@@ -203,6 +203,7 @@ export default function MapPicker() {
           bottom: 0,
           left: 0,
           right: 0,
+          height: !isSelecting ? "auto" : 100,
         }}
         className="bg-white p-4 rounded-t-3xl shadow-lg"
       >
