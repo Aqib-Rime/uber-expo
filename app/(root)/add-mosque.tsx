@@ -324,7 +324,7 @@ export default function AddMosquePage() {
           onPress={(position: number) => setCurrentStep(position)}
         />
       </View>
-      <ScrollView className="flex-1 px-4 py-6">
+      <ScrollView className="flex-1 px-4 py-6 mb-10">
         {renderStepContent()}
       </ScrollView>
       <View className="flex-row justify-between p-4">
@@ -333,18 +333,14 @@ export default function AddMosquePage() {
             className="px-6 py-3 rounded-lg flex-1 mr-2 items-center justify-center border-2 border-red-300"
             onPress={() => router.back()}
           >
-            <Text className="font-semibold text-md text-red-500">
-              Cancel
-            </Text>
+            <Text className="font-semibold text-md text-red-500">Cancel</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
             className="px-6 py-3 rounded-lg flex-1 mr-2 items-center justify-center border-2 border-green-300"
             onPress={() => setCurrentStep(currentStep - 1)}
           >
-            <Text className="font-semibold text-md text-green-500">
-              Back
-            </Text>
+            <Text className="font-semibold text-md text-green-500">Back</Text>
           </TouchableOpacity>
         )}
         <TouchableOpacity
