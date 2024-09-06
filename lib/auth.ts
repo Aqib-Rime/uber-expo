@@ -44,7 +44,7 @@ export const googleOAuth = async (
 ) => {
   try {
     const { createdSessionId, setActive, signUp } = await startOAuthFlow({
-      redirectUrl: Linking.createURL("/(root)/(tabs)/home"),
+      redirectUrl: Linking.createURL("/(root)/(tabs)/mosques"),
     });
 
     console.log({ createdSessionId });

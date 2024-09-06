@@ -23,6 +23,8 @@ import { SkeletonLoading } from "@/app/components/SkeletonLoading";
 import { GoogleSearch } from "@/components/GoogleSearch";
 import { useMosqueFilterStore } from "@/store/mosqueFilterStore";
 import { fetchPlaceDetails } from "@/api/googlePlacesApi";
+import { router } from "expo-router";
+import { TouchableOpacity, Text } from "react-native";
 
 interface PlaceSuggestion {
   place_id: string;
@@ -234,6 +236,21 @@ const Page: React.FC = () => {
           <SkeletonLoading />
         )}
       </BottomSheetModal>
+
+      <View className="absolute bottom-4 left-4 right-4 flex-row justify-between">
+        <TouchableOpacity
+          className="bg-white p-2 rounded-full shadow-md"
+          onPress={() => router.push("/chat")}
+        >
+          <Text>Chat</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          className="bg-white p-2 rounded-full shadow-md"
+          onPress={() => router.push("/profile")}
+        >
+          <Text>Profile</Text>
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 };

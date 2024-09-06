@@ -45,7 +45,6 @@ const SignIn = () => {
 
         if (signInAttempt.status === "complete") {
           await setActive({ session: signInAttempt.createdSessionId });
-          // router.replace("/(root)/(tabs)/home");
           console.log("signin debug place");
         } else {
           console.log(JSON.stringify(signInAttempt, null, 2));
