@@ -17,6 +17,24 @@ const Layout = () => {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="add-mosque"
+        options={{
+          presentation: "modal",
+          title: "Add Mosque",
+          headerStyle: {
+            backgroundColor: "#22c55e",
+          },
+          headerTintColor: "#fff",
+        }}
+      />
+      <Stack.Screen
+        name="map-picker"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 };
