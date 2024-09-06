@@ -3,6 +3,7 @@ import { useRecentSearches, useSearchQuery } from "@/store/mosqueFilterStore";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";
+import React from "react";
 import { RefObject } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import {
@@ -31,6 +32,7 @@ interface BottomSheetContentProps {
   bottomSheetRef: RefObject<BottomSheet>;
   marginTopAnim: SharedValue<number>;
   searchComponent: React.ReactNode;
+  onSearchBarFocus: () => void;
 }
 
 export const MosqueBottomSheetContent = ({
@@ -46,6 +48,7 @@ export const MosqueBottomSheetContent = ({
   bottomSheetRef,
   marginTopAnim,
   searchComponent,
+  onSearchBarFocus,
 }: BottomSheetContentProps) => {
   const animatedStyles = useAnimatedStyle(() => ({
     marginTop: marginTopAnim.value,
@@ -60,7 +63,9 @@ export const MosqueBottomSheetContent = ({
 
   return (
     <Animated.View className={"px-4 pt-6"} style={animatedStyles}>
-      {searchComponent}
+      {React.cloneElement(searchComponent as React.ReactElement, {
+        onSearchBarFocus,
+      })}
       {searchQuery.length <= 2 && <AddMosqueButton />}
       {/* Tabs */}
       {showRecentAndFilters &&

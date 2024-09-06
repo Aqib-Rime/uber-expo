@@ -112,6 +112,10 @@ const Page: React.FC = () => {
     }
   };
 
+  const handleSearchBarFocus = () => {
+    bottomSheetRef.current?.snapToIndex(1);
+  };
+
   useEffect(() => {
     console.log("tappedMosque", tappedMosque);
     if (tappedMosque) {
@@ -215,6 +219,7 @@ const Page: React.FC = () => {
           marginTopAnim={marginTopAnim}
           showRecentAndFilters={showRecentAndFilters}
           searchComponent={<GoogleSearch onSelectPlace={handleSelectPlace} />}
+          onSearchBarFocus={handleSearchBarFocus}
         />
       </BottomSheet>
 

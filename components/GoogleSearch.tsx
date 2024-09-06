@@ -28,6 +28,7 @@ interface Suggestion {
 
 interface GoogleSearchProps {
   onSelectPlace: (suggestion: Suggestion) => void;
+  onSearchBarFocus?: () => void;
 }
 
 const fetchSuggestions = async (input: string): Promise<Suggestion[]> => {
@@ -36,6 +37,7 @@ const fetchSuggestions = async (input: string): Promise<Suggestion[]> => {
 
 export const GoogleSearch: React.FC<GoogleSearchProps> = ({
   onSelectPlace,
+  onSearchBarFocus,
 }) => {
   const searchQuery = useSearchQuery();
   const setSearchQuery = useMosqueFilterStore((state) => state.setSearchQuery);
@@ -79,6 +81,11 @@ export const GoogleSearch: React.FC<GoogleSearchProps> = ({
           placeholder="Search nearby mosques"
           value={searchQuery}
           onChangeText={handleInputChange}
+          onFocus={() => {
+            if (onSearchBarFocus) {
+              onSearchBarFocus();
+            }
+          }}
         />
       </View>
       {suggestions.length > 0 && (
