@@ -1,6 +1,6 @@
 import { MosqueFilterComponent } from "@/components/MosqueFacilitiesComponent";
 import { Feather, FontAwesome6, Ionicons } from "@expo/vector-icons";
-import { BottomSheetModal, BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { RefObject } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import {
@@ -60,7 +60,7 @@ interface BottomSheetContentProps {
   activeTab: "recent" | "filter";
   translateX: SharedValue<number>;
   gestureHandler: (event: GestureEvent<PanGestureHandlerEventPayload>) => void;
-  bottomSheetRef: RefObject<BottomSheetModal>;
+  bottomSheetRef: RefObject<BottomSheet>;
   marginTopAnim: SharedValue<number>;
 }
 
