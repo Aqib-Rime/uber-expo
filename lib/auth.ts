@@ -7,7 +7,7 @@ import * as Linking from "expo-linking";
 import * as SecureStore from "expo-secure-store";
 import ky from "ky";
 
-import api, { clearBearerToken, setBearerToken } from "@/lib/apiClient";
+import { clearBearerToken, setBearerToken } from "@/lib/apiClient";
 import { User } from "@/types/mosque";
 
 export const payloadAccessTokenKey = "payloadAccessToken";

@@ -14,6 +14,7 @@ import OAuth from "@/components/OAuth";
 import { icons, images } from "@/constants";
 import { getAndSetAccessToken } from "@/lib/auth";
 import { fetchAPI } from "@/lib/fetch";
+import { Ionicons } from "@expo/vector-icons";
 
 const signUpSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -112,22 +113,26 @@ const SignUp = () => {
             Create Your Account
           </Text>
         </View>
-        <LoginBackend />
+        {/* <LoginBackend /> */}
         <View className="p-5">
           <Controller
             control={control}
             name="name"
             render={({ field: { onChange, value } }) => (
-              <InputField
-                label="Name"
-                placeholder="Enter name"
-                icon={icons.person}
-                value={value}
-                onChangeText={onChange}
-              />
+              <View>
+                <InputField
+                  label="Name"
+                  placeholder="Enter name"
+                  icon={<Ionicons name="person" size={24} color="gray" />}
+                  value={value}
+                  onChangeText={onChange}
+                />
+                {errors.name ? (
+                  <FormErrorMessage message={errors.name.message} />
+                ) : null}
+              </View>
             )}
           />
-          {errors.name && <FormErrorMessage message={errors.name.message} />}
 
           <Controller
             control={control}
@@ -136,14 +141,16 @@ const SignUp = () => {
               <InputField
                 label="Email"
                 placeholder="Enter email"
-                icon={icons.email}
+                icon={<Ionicons name="mail" size={24} color="gray" />}
                 textContentType="emailAddress"
                 value={value}
                 onChangeText={onChange}
               />
             )}
           />
-          {errors.email && <FormErrorMessage message={errors.email.message} />}
+          {errors.email ? (
+            <FormErrorMessage message={errors.email.message} />
+          ) : null}
 
           <Controller
             control={control}
@@ -152,7 +159,7 @@ const SignUp = () => {
               <InputField
                 label="Password"
                 placeholder="Enter password"
-                icon={icons.lock}
+                icon={<Ionicons name="key" size={24} color="gray" />}
                 secureTextEntry={true}
                 textContentType="password"
                 value={value}
@@ -160,9 +167,9 @@ const SignUp = () => {
               />
             )}
           />
-          {errors.password && (
+          {errors.password ? (
             <FormErrorMessage message={errors.password.message} />
-          )}
+          ) : null}
 
           <CustomButton
             title="Sign Up"
@@ -174,7 +181,7 @@ const SignUp = () => {
             href="/sign-in"
             className="text-lg text-center text-general-200 mt-10"
           >
-            Already have an account?{" "}
+            <Text>Already have an account? </Text>
             <Text className="text-primary-500">Log In</Text>
           </Link>
         </View>
@@ -195,7 +202,7 @@ const SignUp = () => {
             </Text>
             <InputField
               label={"Code"}
-              icon={icons.lock}
+              icon={<Ionicons name="key" size={24} color="gray" />}
               placeholder={"12345"}
               value={verification.code}
               keyboardType="numeric"
@@ -267,9 +274,11 @@ export default SignUp;
 export function FormErrorMessage({ message }: { message?: string }) {
   return (
     <View
-      className={"p-2 bg-red-100 rounded-full px-4 flex flex-row items-center"}
+      className={"p-1 bg-red-100 rounded-full px-4 flex flex-row items-center"}
     >
-      <Text className="text-red-500 text-sm mb-0.5">{message}</Text>
+      {message ? (
+        <Text className="text-red-500 text-sm mb-0.5">{message}</Text>
+      ) : null}
     </View>
   );
 }

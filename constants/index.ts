@@ -69,7 +69,7 @@ export const icons = {
   star,
   target,
   to,
-};
+} as const;
 
 export const onboarding = [
   {

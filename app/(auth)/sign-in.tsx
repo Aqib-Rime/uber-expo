@@ -5,12 +5,13 @@ import { useCallback } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Image, ScrollView, Text, View } from "react-native";
 import { z } from "zod";
+import { Ionicons } from "@expo/vector-icons"; // Import Ionicons
 
 import { FormErrorMessage } from "@/app/(auth)/sign-up";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
 import OAuth from "@/components/OAuth";
-import { icons, images } from "@/constants";
+import { images } from "@/constants";
 
 const signInSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -55,7 +56,7 @@ const SignIn = () => {
         Alert.alert("Error", err.errors[0].longMessage);
       }
     },
-    [isLoaded, signIn, setActive],
+    [isLoaded, signIn, setActive]
   );
 
   return (
@@ -68,7 +69,7 @@ const SignIn = () => {
           </Text>
         </View>
 
-        <View className="p-5">
+        <View className="p-5 flex flex-col gap-y-4">
           <Controller
             control={control}
             name="email"
@@ -76,7 +77,7 @@ const SignIn = () => {
               <InputField
                 label="Email"
                 placeholder="Enter email"
-                icon={icons.email}
+                icon={<Ionicons name="mail" size={24} color="gray" />} // Updated icon
                 textContentType="emailAddress"
                 value={value}
                 onChangeText={onChange}
@@ -92,7 +93,7 @@ const SignIn = () => {
               <InputField
                 label="Password"
                 placeholder="Enter password"
-                icon={icons.lock}
+                icon={<Ionicons name="lock-closed" size={24} color="gray" />} // Updated icon
                 secureTextEntry={true}
                 textContentType="password"
                 value={value}
