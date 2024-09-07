@@ -21,8 +21,7 @@ const api = ky.create({
 
 export const fetchData = async <T>(url: string): Promise<T> => {
   try {
-    const response: { docs: T } = await api.get(url).json();
-    return response.docs;
+    return await api.get(url).json();
   } catch (error) {
     console.error("Error fetching data:", error);
     throw error;

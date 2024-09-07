@@ -242,7 +242,7 @@ const SignUp = () => {
                     console.log("access token set");
                   });
                 }
-                router.push(`/(root)/(tabs)/mosques`);
+                router.push(`/(root)/mosques`);
               }}
               className="mt-5"
             />

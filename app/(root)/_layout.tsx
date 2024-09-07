@@ -1,17 +1,47 @@
-import { Stack } from "expo-router";
+import { Drawer } from "expo-router/drawer";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const Layout = () => {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="add-mosque" />
-      <Stack.Screen
-        name="map-picker"
-        options={{
-          presentation: "modal",
-        }}
-      />
-    </Stack>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Drawer>
+        <Drawer.Screen
+          name="mosques"
+          options={{
+            drawerLabel: "Mosques",
+            title: "Mosques",
+            headerShown: false,
+          }}
+        />
+        <Drawer.Screen
+          name="profile"
+          options={{
+            drawerLabel: "Profile",
+            title: "Profile",
+            headerShown: false,
+          }}
+        />
+        <Drawer.Screen
+          name="chat"
+          options={{
+            drawerLabel: "Chat",
+            title: "Chat",
+            headerShown: false,
+          }}
+        />
+        <Drawer.Screen
+          name="add-mosque"
+          options={{ drawerItemStyle: { display: "none" }, headerShown: false }}
+        />
+        <Drawer.Screen
+          name="map-picker"
+          options={{
+            drawerItemStyle: { display: "none" },
+            headerShown: false,
+          }}
+        />
+      </Drawer>
+    </GestureHandlerRootView>
   );
 };
 

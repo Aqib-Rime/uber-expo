@@ -1,45 +1,34 @@
 import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { View } from "react-native";
-import MapView, { PROVIDER_DEFAULT, Region } from "react-native-maps";
-import {
+import { ActivityIndicator, View } from "react-native";
+import MapView, { PROVIDER_DEFAULT } from "react-native-maps";
+import Animated, {
+  FadeIn,
   runOnJS,
   useAnimatedGestureHandler,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { ActivityIndicator } from "react-native";
-import Animated, { FadeIn } from "react-native-reanimated";
 
-import { MosqueBottomSheetContent } from "@/components/MosqueBottomSheetContent";
-import { useLocationStore } from "@/store";
-import { Mosque } from "@/types/mosque";
-import { useLocationPermission } from "@/app/hooks/useLocationPermission";
-import { useFilteredMosques } from "@/hooks/mosques";
-import { MosqueMarker } from "@/app/components/MosqueMarker";
+import { fetchPlaceDetails } from "@/api/googlePlacesApi";
 import { MapControls } from "@/app/components/MapControls";
 import { MosqueCard } from "@/app/components/MosqueCard";
+import { MosqueMarker } from "@/app/components/MosqueMarker";
 import { SkeletonLoading } from "@/app/components/SkeletonLoading";
+import { useLocationPermission } from "@/app/hooks/useLocationPermission";
 import { GoogleSearch } from "@/components/GoogleSearch";
+import { MosqueBottomSheetContent } from "@/components/MosqueBottomSheetContent";
+import { useFilteredMosques } from "@/hooks/mosques";
+import { useLocationStore } from "@/store";
 import { useMosqueFilterStore } from "@/store/mosqueFilterStore";
-import { fetchPlaceDetails } from "@/api/googlePlacesApi";
-import { router } from "expo-router";
-import { TouchableOpacity, Text } from "react-native";
+import { Mosque } from "@/types/mosque";
+import { Ionicons } from "@expo/vector-icons";
+import { DrawerActions, useNavigation } from "@react-navigation/native";
+import { TouchableOpacity } from "react-native";
 
 interface PlaceSuggestion {
   place_id: string;
   description: string;
-}
-
-interface PlaceDetails {
-  result: {
-    geometry: {
-      location: {
-        lat: number;
-        lng: number;
-      };
-    };
-  };
 }
 
 const Page: React.FC = () => {
@@ -52,6 +41,7 @@ const Page: React.FC = () => {
   const { userLatitude, userLongitude, setUserLocation } = useLocationStore();
   const [hasPermission, setHasPermission] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
+  const navigation = useNavigation();
 
   useLocationPermission();
   const mosques = useFilteredMosques();
@@ -177,6 +167,13 @@ const Page: React.FC = () => {
         ))}
       </MapView>
 
+      <TouchableOpacity
+        className="bg-white p-2 rounded-full shadow-md absolute top-10 left-4"
+        onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+      >
+        <Ionicons name="menu" size={24} color="#22c55e" />
+      </TouchableOpacity>
+
       <MapControls
         onLocatePress={() => {
           if (userLatitude && userLongitude) {
@@ -236,21 +233,6 @@ const Page: React.FC = () => {
           <SkeletonLoading />
         )}
       </BottomSheetModal>
-
-      <View className="absolute bottom-4 left-4 right-4 flex-row justify-between">
-        <TouchableOpacity
-          className="bg-white p-2 rounded-full shadow-md"
-          onPress={() => router.push("/chat")}
-        >
-          <Text>Chat</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="bg-white p-2 rounded-full shadow-md"
-          onPress={() => router.push("/profile")}
-        >
-          <Text>Profile</Text>
-        </TouchableOpacity>
-      </View>
     </Animated.View>
   );
 };
