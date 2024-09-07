@@ -63,7 +63,6 @@ const SignUp = () => {
         state: "pending",
       });
     } catch (err: any) {
-      console.log(JSON.stringify(err, null, 2));
       setClerkError(err.errors[0].longMessage);
     }
   };
@@ -238,9 +237,7 @@ const SignUp = () => {
               title="Browse Home"
               onPress={() => {
                 if (user) {
-                  getAndSetAccessToken(user, getToken, "email").then(() => {
-                    console.log("access token set");
-                  });
+                  getAndSetAccessToken(user, getToken, "email");
                 }
                 router.push(`/(root)/mosques`);
               }}

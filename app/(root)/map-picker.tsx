@@ -94,7 +94,6 @@ export default function MapPicker() {
   const getCurrentLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
-      console.log("Permission to access location was denied");
       return;
     }
 
@@ -127,9 +126,7 @@ export default function MapPicker() {
           `${addressResult.name}, ${addressResult.street}, ${addressResult.city}, ${addressResult.region}, ${addressResult.country}`
         );
       }
-    } catch (error) {
-      console.error("Error getting address:", error);
-    }
+    } catch (error) {}
   }, []);
 
   const onPanDrag = useCallback(() => {

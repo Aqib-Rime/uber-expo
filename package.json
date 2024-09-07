@@ -21,6 +21,7 @@
     "@gorhom/bottom-sheet": "^4.6.4",
     "@hookform/resolvers": "^3.9.0",
     "@preact/signals-react": "^2.2.0",
+    "@react-native-async-storage/async-storage": "^2.0.0",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-navigation/drawer": "^6.7.2",
     "@react-navigation/native": "^6.0.2",

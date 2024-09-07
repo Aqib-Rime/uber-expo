@@ -11,10 +11,7 @@ export function useFacilities() {
   } = useQuery({
     queryKey: ["facilities"],
     queryFn: async () => {
-      const data = await fetchData<MosqueFacility[]>("get-facilities");
-      console.log(data);
-
-      return data;
+      return await fetchData<MosqueFacility[]>("get-facilities");
     },
   });
   return { facilities, isPending, isError };

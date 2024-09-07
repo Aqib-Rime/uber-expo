@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface RecentSearch {
   id: string;
@@ -39,6 +40,7 @@ export const useMosqueFilterStore = create<MosqueFilterInfo>()(
     }),
     {
       name: "mosque-filter-storage",
+      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );

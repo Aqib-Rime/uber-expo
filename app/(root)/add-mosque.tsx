@@ -62,7 +62,6 @@ export default function AddMosquePage() {
 
       // Set the current step to the returnStep if it exists
       if (params.returnStep && !alreadySetFromMapPicker) {
-        console.log("returnStep", params.returnStep);
         setCurrentStep(parseInt(params.returnStep as string, 10));
         setAlreadySetFromMapPicker(true);
       }
@@ -70,7 +69,6 @@ export default function AddMosquePage() {
   }, [params, setValue]);
 
   const onSubmit = (data: FormData) => {
-    console.log("Form submitted:", { ...data, coverImage, otherImages });
     router.back();
   };
 

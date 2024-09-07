@@ -46,13 +46,10 @@ const SignIn = () => {
 
         if (signInAttempt.status === "complete") {
           await setActive({ session: signInAttempt.createdSessionId });
-          console.log("signin debug place");
         } else {
-          console.log(JSON.stringify(signInAttempt, null, 2));
           Alert.alert("Error", "Log in failed. Please try again.");
         }
       } catch (err: any) {
-        console.log(JSON.stringify(err, null, 2));
         Alert.alert("Error", err.errors[0].longMessage);
       }
     },

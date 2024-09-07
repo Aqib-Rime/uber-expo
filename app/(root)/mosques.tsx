@@ -98,7 +98,7 @@ const Page: React.FC = () => {
         longitudeDelta: 0.01,
       });
     } catch (error) {
-      console.error("Error fetching place details:", error);
+      // Handle error
     } finally {
       bottomSheetRef.current?.snapToIndex(0);
     }
@@ -109,14 +109,12 @@ const Page: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("tappedMosque", tappedMosque);
     if (tappedMosque) {
       bottomSheetModalRef.current?.present();
     }
   }, [tappedMosque]);
 
   useEffect(() => {
-    // Simulate a short loading time to ensure smooth transition
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 500);
@@ -186,7 +184,7 @@ const Page: React.FC = () => {
           }
         }}
         onFilterPress={() => {
-          setSearchQuery(""); // Set search query to empty string
+          setSearchQuery("");
           setActiveTab("filter");
           bottomSheetRef.current?.snapToIndex(1);
           bottomSheetModalRef.current?.close();

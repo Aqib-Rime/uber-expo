@@ -15,15 +15,8 @@ export const payloadAccessTokenKey = "payloadAccessToken";
 export const tokenCache = {
   async getToken(key: string) {
     try {
-      const item = await SecureStore.getItemAsync(key);
-      if (item) {
-        console.log(`${key} was used 🔐 \n`);
-      } else {
-        console.log("No values stored under key: " + key);
-      }
-      return item;
+      return await SecureStore.getItemAsync(key);
     } catch (error) {
-      console.error("SecureStore get item error: ", error);
       await SecureStore.deleteItemAsync(key);
       return null;
     }
@@ -39,15 +32,13 @@ export const tokenCache = {
 
 export const googleOAuth = async (
   startOAuthFlow: (
-    startOAuthFlowParams?: StartOAuthFlowParams | undefined,
-  ) => Promise<StartOAuthFlowReturnType>,
+    startOAuthFlowParams?: StartOAuthFlowParams | undefined
+  ) => Promise<StartOAuthFlowReturnType>
 ) => {
   try {
     const { createdSessionId, setActive, signUp } = await startOAuthFlow({
       redirectUrl: Linking.createURL("/(root)/mosques"),
     });
-
-    console.log({ createdSessionId });
 
     if (createdSessionId) {
       if (setActive) {
@@ -77,7 +68,6 @@ export const googleOAuth = async (
       message: "An error occurred while signing in with Google",
     };
   } catch (err: any) {
-    console.error(err);
     return {
       success: false,
       code: err.code,
@@ -91,12 +81,8 @@ type UserForToken = Omit<User, "updatedAt" | "createdAt" | "id">;
 export const getAndSetAccessToken = async (
   clerkUser: UserResource,
   getToken: () => Promise<string | null>,
-  authType?: User["creationWay"],
+  authType?: User["creationWay"]
 ) => {
-  console.log({
-    username: clerkUser.username,
-    email: clerkUser.emailAddresses,
-  });
   if (!(clerkUser.username && clerkUser.emailAddresses.length > 0)) {
     clearBearerToken();
     return;
@@ -126,8 +112,7 @@ export const getAndSetAccessToken = async (
       .json<{ accessToken: string }>();
     await tokenCache.saveToken(payloadAccessTokenKey, accessToken);
     setBearerToken(accessToken);
-    console.log({ accessToken });
   } catch (e) {
-    console.error(e);
+    // Handle error
   }
 };

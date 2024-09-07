@@ -1,5 +1,5 @@
 import { useOAuth } from "@clerk/clerk-expo";
-import { Alert, Image, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 
 import CustomButton from "@/components/CustomButton";
 import { icons } from "@/constants";
@@ -11,12 +11,12 @@ const OAuth = () => {
   const handleGoogleSignIn = async () => {
     const result = await googleOAuth(startOAuthFlow);
 
-    if (result.code === "session_exists") {
-      Alert.alert("Success", "Session exists. Redirecting to home screen.");
-      return;
-    }
+    // if (result.code === "session_exists") {
+    //   Alert.alert("Success", "Session exists. Redirecting to home screen.");
+    //   return;
+    // }
 
-    Alert.alert(result.success ? "Success" : "Error", result.message);
+    // Alert.alert(result.success ? "Success" : "Error", result.message);
   };
 
   return (

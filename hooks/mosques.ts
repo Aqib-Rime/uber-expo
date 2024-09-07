@@ -24,7 +24,7 @@ export const useFilteredMosques = () => {
       distance,
     ],
     queryFn: async () => {
-      const mosques = await api
+      return await api
         .post("filterMosque", {
           json: {
             currentLat,
@@ -34,8 +34,6 @@ export const useFilteredMosques = () => {
           },
         })
         .json<Mosque[]>();
-      console.log({ mosques: mosques[0].position });
-      return mosques;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
