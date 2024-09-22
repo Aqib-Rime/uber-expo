@@ -1,7 +1,9 @@
-import { Link, Stack } from "expo-router";
+import { Link, Stack, usePathname } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function NotFoundScreen() {
+  const pathname = usePathname();
+  console.log(pathname);
   return (
     <>
       <Stack.Screen options={{ title: "Oops!" }} />

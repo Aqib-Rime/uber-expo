@@ -1,12 +1,12 @@
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { FontAwesome6, Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { Image, Text, View } from "react-native";
 import {
   GestureHandlerRootView,
   TouchableOpacity,
 } from "react-native-gesture-handler";
-import { useRouter } from "expo-router";
 
 const Layout = () => {
   const { user } = useUser();

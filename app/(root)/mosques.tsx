@@ -12,7 +12,6 @@ import Animated, {
 
 import { fetchPlaceDetails } from "@/api/googlePlacesApi";
 import { MapControls } from "@/app/components/MapControls";
-import { MosqueCard } from "@/app/components/MosqueCard";
 import { MosqueMarker } from "@/app/components/MosqueMarker";
 import { SkeletonLoading } from "@/app/components/SkeletonLoading";
 import { useLocationPermission } from "@/app/hooks/useLocationPermission";
@@ -25,6 +24,7 @@ import { Mosque } from "@/types/mosque";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions, useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
+import { MosqueCard } from "@/components/MosqueCard";
 
 interface PlaceSuggestion {
   place_id: string;
@@ -226,7 +226,12 @@ const Page: React.FC = () => {
         snapPoints={["40%"]}
       >
         {tappedMosque ? (
-          <MosqueCard mosque={tappedMosque} />
+          <MosqueCard
+            mosque={tappedMosque}
+            onPress={() => {
+              bottomSheetModalRef.current?.close();
+            }}
+          />
         ) : (
           <SkeletonLoading />
         )}

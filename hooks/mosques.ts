@@ -39,3 +39,14 @@ export const useFilteredMosques = () => {
   });
   return { mosques: data, isLoading, isError };
 };
+
+export const useMosque = (id: string) => {
+  const { data, isLoading, isError, error } = useQuery<Mosque, Error>({
+    queryKey: ["mosque", id],
+    queryFn: async () => {
+      return await api.get(`get-mosque/${id}`).json<Mosque>();
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+  return { mosque: data, isLoading, isError, error };
+};

@@ -1,10 +1,9 @@
 import { useFacilities } from "@/hooks/facilities";
 import { useMosqueFilterStore } from "@/store/mosqueFilterStore";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { ActivityIndicator, View, Text, TouchableOpacity } from "react-native";
 import Animated, { SlideInRight, SlideOutRight } from "react-native-reanimated";
-import { computed, useSignal } from "@preact/signals-react";
 
 export function MosqueFilterComponent({
   afterFilterApplied,
@@ -16,24 +15,24 @@ export function MosqueFilterComponent({
   const [tempSelectedFacilities, setTempSelectedFacilities] = useState<
     string[]
   >(useMosqueFilterStore.getState().facilities);
-  const isApplying = useSignal(false);
+  const [isApplying, setIsApplying] = useState(false);
 
-  const toggleFacility = (facilityId: string) => {
+  const toggleFacility = useCallback((facilityId: string) => {
     setTempSelectedFacilities((prev) =>
       prev.includes(facilityId)
         ? prev.filter((id) => id !== facilityId)
         : [...prev, facilityId]
     );
-  };
+  }, []);
 
-  const applyFilter = () => {
+  const applyFilter = useCallback(() => {
     setFacilities(tempSelectedFacilities);
-    isApplying.value = true;
+    setIsApplying(true);
     setTimeout(() => {
       afterFilterApplied();
-      isApplying.value = false;
+      setIsApplying(false);
     }, 500);
-  };
+  }, [setFacilities, tempSelectedFacilities, afterFilterApplied]);
 
   return (
     <Animated.View
@@ -86,23 +85,20 @@ export function MosqueFilterComponent({
         <TouchableOpacity
           className={`border-2 px-4 py-3 rounded-lg flex flex-1 flex-row items-center justify-center mt-4 ${isPending || isApplying ? "border-green-300" : "border-green-300"}`}
           onPress={applyFilter}
-          //   disabled={isPending || isApplying}
         >
-          {computed(() =>
-            isPending || isApplying.value ? (
-              <ActivityIndicator
-                size={24}
-                color="#22c55e"
-                style={{ marginRight: 8 }}
-              />
-            ) : (
-              <Ionicons
-                name="filter"
-                size={24}
-                style={{ marginRight: 8 }}
-                color="#22c55e"
-              />
-            )
+          {isPending || isApplying ? (
+            <ActivityIndicator
+              size={24}
+              color="#22c55e"
+              style={{ marginRight: 8 }}
+            />
+          ) : (
+            <Ionicons
+              name="filter"
+              size={24}
+              style={{ marginRight: 8 }}
+              color="#22c55e"
+            />
           )}
           <Text className="font-bold text-md text-green-500">
             {isPending
